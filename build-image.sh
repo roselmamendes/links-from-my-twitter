@@ -1,0 +1,1 @@
+docker build -t links-from-my-twitter .
