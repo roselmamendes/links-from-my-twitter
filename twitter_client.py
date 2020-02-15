@@ -70,8 +70,8 @@ def get_bearer_token():
     encoded_key_secret = str(base64.b64encode(simple_encode), 'utf-8')
     url = URL_BASE + TOKEN_URL
 
-    print(f'url: {url}')
-    print(f'key and secret base64 encoded: {encoded_key_secret}')
+    logger.info(f'url: {url}')
+    logger.info(f'key and secret base64 encoded: {encoded_key_secret}')
 
     response = requests.post(
         url,
