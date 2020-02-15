@@ -40,10 +40,7 @@ def extract_urls_from_tweets(max_results, fromDate, toDate):
         tweets_results = response.json()['results']
         for tweet in tweets_results:
             urls = _extract_urls_from(tweet['entities']['urls'])
-            retweeted = tweet.get('retweeted_status', None)
-            retweeted_text = None
-            if retweeted:
-                retweeted_text = retweeted['text']
+            retweeted_text = _extract_retweeted_text(tweet.get('retweeted_status', None))
             tweets.append(
                 {
                     'created_at': tweet['created_at'],
@@ -57,6 +54,14 @@ def extract_urls_from_tweets(max_results, fromDate, toDate):
 
 def _extract_urls_from(raw_tweet_urls):
     return [url_object['expanded_url'] for url_object in raw_tweet_urls]
+
+
+def _extract_retweeted_text(retweeted_status):
+    retweeted_text = None
+    if retweeted_status:
+        retweeted_text = retweeted_status['text']
+
+    return retweeted_text
 
 
 def get_bearer_token():
