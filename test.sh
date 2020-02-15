@@ -1,0 +1,1 @@
+docker run --rm --env-file .env -v $PWD:/usr/src/app -w /usr/src/app -it links-from-my-twitter pytest

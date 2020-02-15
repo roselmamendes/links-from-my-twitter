@@ -13,7 +13,7 @@ def _is_error_response(response):
     return response.status_code != 200
 
 
-def search_tweets(max_results, fromDate, toDate):
+def extract_urls_from_tweets(max_results, fromDate, toDate):
     tweets = []
     response = requests.post(
         URL_BASE + URL,
@@ -27,9 +27,20 @@ def search_tweets(max_results, fromDate, toDate):
     )
 
     if not _is_error_response(response):
-
-
+        tweets_results = response.json()['results']
+        for tweet in tweets_results:
+            urls = _extract_urls_from(tweet['entities']['urls'])
+            tweets.append(
+                {
+                    'created_at': tweet['created_at'],
+                    'urls': urls
+                }
+            )
     return tweets
+
+
+def _extract_urls_from(raw_tweet_urls):
+    return [url_object['url'] for url_object in raw_tweet_urls]
 
 
 def get_bearer_token():
