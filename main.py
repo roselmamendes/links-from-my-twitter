@@ -1,10 +1,3 @@
-import os
-import requests
+from twitter_client import extract_urls_from_tweets
 
-
-
-
-
-
-
-print(response)
+print(extract_urls_from_tweets(30, '20200210', '20200215'))
