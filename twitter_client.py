@@ -15,21 +15,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s:%(message)s')
 logger = logging.getLogger(__name__)
 
 
-def _is_error_response(response):
-    if response.status_code != 200:
-        logging.error(f'Status Code: {response.status_code} JSON Response: {response.json()}')
-        return True
-    return False
-
-
 def extract_urls_from_tweets(max_results, fromDate, toDate):
     tweets = []
-    data_str = json.dumps({
-            'query': 'from:roselmamendes has:links',
-            'maxResults': str(max_results),
-            'fromDate': f'{fromDate}0000',  # <yyyymmddhhmm>
-            'toDate': f'{toDate}0000'
-        })
+    data_str = _build_payload(fromDate, max_results, toDate)
+
     response = requests.post(
         URL_BASE + URL,
         headers={"Authorization": f'Bearer {TWITTER_BEARER_TOKEN}'},
@@ -37,19 +26,35 @@ def extract_urls_from_tweets(max_results, fromDate, toDate):
     )
 
     if not _is_error_response(response):
-        tweets_results = response.json()['results']
-        for tweet in tweets_results:
-            urls = _extract_urls_from(tweet['entities']['urls'], tweet.get('retweeted_status', None))
-            retweeted_text = _extract_retweeted_text(tweet.get('retweeted_status', None))
-            tweets.append(
-                {
-                    'created_at': tweet['created_at'],
-                    'urls': urls,
-                    'name': tweet['user']['name'],
-                    'retweeted_status': retweeted_text
-                }
-            )
+        tweets = _build_urls_list(response.json()['results'])
     return tweets
+
+
+def _build_payload(fromDate, max_results, toDate):
+    return json.dumps({
+        'query': 'from:roselmamendes has:links',
+        'maxResults': str(max_results),
+        'fromDate': f'{fromDate}0000',  # <yyyymmddhhmm>
+        'toDate': f'{toDate}0000'
+    })
+
+
+def _build_urls_list(tweets_results):
+    urls = []
+
+    for tweet in tweets_results:
+        expanded_urls = _extract_urls_from(tweet['entities']['urls'], tweet.get('retweeted_status', None))
+        retweeted_text = _extract_retweeted_text(tweet.get('retweeted_status', None))
+        urls.append(
+            {
+                'created_at': tweet['created_at'],
+                'urls': expanded_urls,
+                'name': tweet['user']['name'],
+                'retweeted_status': retweeted_text
+            }
+        )
+
+    return urls
 
 
 def _extract_urls_from(raw_tweet_urls, retweeted_status):
@@ -88,3 +93,10 @@ def get_bearer_token():
     if not _is_error_response(response):
         token = response.json()['access_token']
     return token
+
+
+def _is_error_response(response):
+    if response.status_code != 200:
+        logging.error(f'Status Code: {response.status_code} JSON Response: {response.json()}')
+        return True
+    return False
