@@ -1,7 +1,7 @@
 import unittest
 import requests_mock
 from tests import json_for_tests
-from twitter_client import extract_urls_from_tweets
+from twitter.client import extract_urls_from_tweets
 
 
 class TestTwitterClient(unittest.TestCase):
