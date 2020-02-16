@@ -1,5 +1,7 @@
 import os
 import base64
+from json import JSONDecodeError
+
 import requests
 import logging
 import json
@@ -47,6 +49,7 @@ def _build_urls_list(tweets_results):
         retweeted_text = _extract_retweeted_text(tweet.get('retweeted_status', None))
         urls.append(
             {
+                'id_str': tweet['id_str'],
                 'created_at': tweet['created_at'],
                 'urls': expanded_urls,
                 'name': tweet['user']['name'],
@@ -58,10 +61,13 @@ def _build_urls_list(tweets_results):
 
 
 def _extract_urls_from(raw_tweet_urls, retweeted_status):
+    urls = []
     if retweeted_status:
-        return [url_object['expanded_url'] for url_object in retweeted_status['entities']['urls']]
+        urls += ([url_object['expanded_url'] for url_object in retweeted_status['entities']['urls']])
 
-    return [url_object['expanded_url'] for url_object in raw_tweet_urls]
+    urls += ([url_object['expanded_url'] for url_object in raw_tweet_urls])
+
+    return urls
 
 
 def _extract_retweeted_text(retweeted_status):
@@ -95,8 +101,24 @@ def get_bearer_token():
     return token
 
 
+def get_tweet(tweet_id):
+    response = requests.get(
+        f'{URL_BASE}1.1/statuses/show.json?id={tweet_id}',
+        headers={"Authorization": f'Bearer {TWITTER_BEARER_TOKEN}'}
+    )
+
+    if not _is_error_response(response):
+        return response.json()
+
+
 def _is_error_response(response):
+    response_json = None
     if response.status_code != 200:
-        logging.error(f'Status Code: {response.status_code} JSON Response: {response.json()}')
+        try:
+            response_json = response.json()
+            logging.error(f'Status Code: {response.status_code} JSON Response: {response.json()}')
+        except JSONDecodeError as e:
+            logging.error(f'Status Code: {response.status_code}')
+
         return True
     return False

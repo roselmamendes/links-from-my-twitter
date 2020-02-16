@@ -43,3 +43,4 @@ class TestTwitterClient(unittest.TestCase):
            json_for_tests.with_retweet_assert,
             urls
         )
+
