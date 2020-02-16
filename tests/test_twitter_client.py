@@ -22,8 +22,7 @@ class TestTwitterClient(unittest.TestCase):
                         "entities": {
                             "urls": [{"expanded_url": "https://some-url2"}]
                         },
-                        "user": {"name": "Someone name"},
-                        "retweeted_status": {"text": "some retweet"}
+                        "user": {"name": "Someone name"}
                     }
                 ]
             }
@@ -42,7 +41,7 @@ class TestTwitterClient(unittest.TestCase):
                     "created_at": "Wed Oct 11 20:19:24 +0000 2018",
                     "urls": ["https://some-url2"],
                     "name": "Someone name",
-                    "retweeted_status": "some retweet"
+                    "retweeted_status": None
                 }
             ],
             urls
@@ -64,3 +63,36 @@ class TestTwitterClient(unittest.TestCase):
         urls = extract_urls_from_tweets(10, '', '')
 
         self.assertEqual([], urls)
+
+    @requests_mock.mock()
+    def test_if_is_retweet_extract_link_from_original_tweet(self, m):
+        m.post(
+            'https://api.twitter.com/1.1/tweets/search/fullarchive/development.json',
+            json={
+                'results': [
+                    {
+                        "created_at": "Wed Oct 11 20:19:24 +0000 2018",
+                        "entities": {
+                            "urls": []
+                        },
+                        "user": {"name": "Someone name"},
+                        "retweeted_status": {
+                            "text": "some retweet",
+                            "entities": {"urls": [{"expanded_url": "https://fromretweet"}]}
+                        }
+                    }
+                ]
+            }
+        )
+
+        urls = extract_urls_from_tweets(10, '20181011', '20181011')
+
+        self.assertEqual(
+            [{
+                "created_at": "Wed Oct 11 20:19:24 +0000 2018",
+                "urls": ["https://fromretweet"],
+                "name": "Someone name",
+                "retweeted_status": "some retweet"
+            }],
+            urls
+        )

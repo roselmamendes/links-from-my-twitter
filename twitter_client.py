@@ -39,7 +39,7 @@ def extract_urls_from_tweets(max_results, fromDate, toDate):
     if not _is_error_response(response):
         tweets_results = response.json()['results']
         for tweet in tweets_results:
-            urls = _extract_urls_from(tweet['entities']['urls'])
+            urls = _extract_urls_from(tweet['entities']['urls'], tweet.get('retweeted_status', None))
             retweeted_text = _extract_retweeted_text(tweet.get('retweeted_status', None))
             tweets.append(
                 {
@@ -52,7 +52,10 @@ def extract_urls_from_tweets(max_results, fromDate, toDate):
     return tweets
 
 
-def _extract_urls_from(raw_tweet_urls):
+def _extract_urls_from(raw_tweet_urls, retweeted_status):
+    if retweeted_status:
+        return [url_object['expanded_url'] for url_object in retweeted_status['entities']['urls']]
+
     return [url_object['expanded_url'] for url_object in raw_tweet_urls]
 
 
