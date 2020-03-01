@@ -4,7 +4,9 @@ from app.bookmark_service import generate_bookmark_from_twitter
 def print_bookmark_from_twitter(max_results, fromDate, toDate):
     bookmark_from_twitter = generate_bookmark_from_twitter(max_results, fromDate, toDate)
 
-    print(bookmark_from_twitter)
+    for bookmark in bookmark_from_twitter:
+        print(bookmark.source_fields)
+        print(bookmark.urls)
 
 
 def create_html_bookmark_from_twitter(max_results, fromDate, toDate):
