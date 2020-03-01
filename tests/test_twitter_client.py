@@ -1,7 +1,7 @@
 import unittest
 import requests_mock
 from tests import json_for_tests
-from twitter.client import extract_urls_from_tweets
+from app.twitter.client import get_tweets_at
 
 
 class TestTwitterClient(unittest.TestCase):
@@ -11,10 +11,10 @@ class TestTwitterClient(unittest.TestCase):
             'https://api.twitter.com/1.1/tweets/search/fullarchive/development.json',
             json=json_for_tests.with_regular_tweets
         )
-        urls = extract_urls_from_tweets(2, '20200101', '20200131')
+        urls = get_tweets_at(2, '20200101', '20200131')
 
         self.assertEqual(
-            json_for_tests.with_regular_tweets_assert,
+            json_for_tests.with_regular_tweets,
             urls
         )
 
@@ -26,7 +26,7 @@ class TestTwitterClient(unittest.TestCase):
             json=json_for_tests.with_error
         )
 
-        urls = extract_urls_from_tweets(10, '', '')
+        urls = get_tweets_at(10, '', '')
 
         self.assertEqual([], urls)
 
@@ -37,10 +37,9 @@ class TestTwitterClient(unittest.TestCase):
             json=json_for_tests.with_retweet
         )
 
-        urls = extract_urls_from_tweets(10, '20181011', '20181011')
+        urls = get_tweets_at(10, '20181011', '20181011')
 
         self.assertEqual(
-           json_for_tests.with_retweet_assert,
+            json_for_tests.with_retweet,
             urls
         )
-

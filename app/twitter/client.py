@@ -17,7 +17,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s:%(message)s')
 logger = logging.getLogger(__name__)
 
 
-def extract_urls_from_tweets(max_results, fromDate, toDate):
+def get_tweets_at(max_results, fromDate, toDate):
     tweets = []
     data_str = _build_payload(fromDate, max_results, toDate)
 
@@ -28,7 +28,7 @@ def extract_urls_from_tweets(max_results, fromDate, toDate):
     )
 
     if not _is_error_response(response):
-        tweets = _build_urls_list(response.json()['results'])
+        tweets = response.json()
     return tweets
 
 
@@ -39,43 +39,6 @@ def _build_payload(fromDate, max_results, toDate):
         'fromDate': f'{fromDate}0000',  # <yyyymmddhhmm>
         'toDate': f'{toDate}0000'
     })
-
-
-def _build_urls_list(tweets_results):
-    urls = []
-
-    for tweet in tweets_results:
-        expanded_urls = _extract_urls_from(tweet['entities']['urls'], tweet.get('retweeted_status', None))
-        retweeted_text = _extract_retweeted_text(tweet.get('retweeted_status', None))
-        urls.append(
-            {
-                'id_str': tweet['id_str'],
-                'created_at': tweet['created_at'],
-                'urls': expanded_urls,
-                'name': tweet['user']['name'],
-                'retweeted_status': retweeted_text
-            }
-        )
-
-    return urls
-
-
-def _extract_urls_from(raw_tweet_urls, retweeted_status):
-    urls = []
-    if retweeted_status:
-        urls += ([url_object['expanded_url'] for url_object in retweeted_status['entities']['urls']])
-
-    urls += ([url_object['expanded_url'] for url_object in raw_tweet_urls])
-
-    return urls
-
-
-def _extract_retweeted_text(retweeted_status):
-    retweeted_text = None
-    if retweeted_status:
-        retweeted_text = retweeted_status['text']
-
-    return retweeted_text
 
 
 def get_bearer_token():
