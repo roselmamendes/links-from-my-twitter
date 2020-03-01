@@ -1,0 +1,11 @@
+<title>Twitter Bookmarks - {{ date_range }}</title>
+<ul>
+{% for bookmark in bookmarks %}
+  <li>
+      <p>{{ bookmark.created_at }}</p>
+      {% for url in bookmark.urls %}
+        <a href="{{ url }}">{{ url }}</a>
+      {% endfor %}
+  </li>
+{% endfor %}
+</ul>
