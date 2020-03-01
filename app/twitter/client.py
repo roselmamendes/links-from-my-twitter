@@ -1,7 +1,7 @@
 import os
 import base64
 from json import JSONDecodeError
-
+from requests.exceptions import RequestException
 import requests
 import logging
 import json
@@ -21,11 +21,14 @@ def get_tweets_at(max_results, fromDate, toDate):
     tweets = []
     data_str = _build_payload(fromDate, max_results, toDate)
 
-    response = requests.post(
-        URL_BASE + URL,
-        headers={"Authorization": f'Bearer {TWITTER_BEARER_TOKEN}'},
-        data=data_str
-    )
+    try:
+        response = requests.post(
+            URL_BASE + URL,
+            headers={"Authorization": f'Bearer {TWITTER_BEARER_TOKEN}'},
+            data=data_str
+        )
+    except RequestException as e:
+        logger.error(e)
 
     if not _is_error_response(response):
         tweets = response.json()
