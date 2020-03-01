@@ -1,4 +1,4 @@
-from model.url import Url
+from app.model.bookmark import Bookmark
 
 with_retweet = {
     'results': [
@@ -17,7 +17,7 @@ with_retweet = {
     ]
 }
 
-with_retweet_assert = [{
+with_retweet_bookmark_assert = [{
     "id_str": "1234",
     "created_at": "Wed Oct 11 20:19:24 +0000 2018",
     "urls": ["https://fromretweet", ""],
@@ -53,7 +53,7 @@ with_regular_tweets = {
     ]
 }
 
-with_regular_tweets_assert = [
+with_regular_bookmark_assert = [
     {
         "id_str": "1235",
         "created_at": "Wed Oct 10 20:19:24 +0000 2018",
@@ -70,8 +70,10 @@ with_regular_tweets_assert = [
     }
 ]
 
-with_model_url = Url(
-    id_str= "1235",
-    created_at="Wed Oct 10 20:19:24 +0000 2018",
-    expanded_url="https://some-url"
+with_bookmark = Bookmark(
+    source_id='source-id',
+    source='some-source',
+    created_at='Wed Oct 10 20:19:24 +0000 2018',
+    urls=['https://some-url'],
+    source_fields={'retweeted_status': ''}
 )
