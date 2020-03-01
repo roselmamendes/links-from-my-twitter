@@ -1,9 +1,21 @@
+import json
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 Base = declarative_base()
+
+
+class Bookmark(Base):
+    __tablename__ = 'bookmark'
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(String(250), nullable=False)
+    source_id = Column(String(250), nullable=False)
+    source = Column(String(250), nullable=False)
+    source_fields = Column(String(250), nullable=False)
+    urls = relationship('Url')
 
 
 class Url(Base):
@@ -11,8 +23,7 @@ class Url(Base):
 
     id = Column(Integer, primary_key=True)
     url = Column(String(250), nullable=False)
-    created_at = Column(String(250), nullable=False)
-    tweet_id = Column(String(250), nullable=False)
+    bookmark_id = Column(Integer, ForeignKey('bookmark.id'))
 
 
 class Store:
@@ -32,15 +43,21 @@ class Store:
 
         self.session = DBSession()
 
-    def save(self, tweet):
-        new_url_db = Url(
-            url=tweet.expanded_url,
-            created_at=tweet.created_at,
-            tweet_id=tweet.id_str
+    def save(self, bookmark):
+        new_bookmark_db = Bookmark(
+            created_at=bookmark.created_at,
+            source_id=bookmark.source_id,
+            source=bookmark.source,
+            source_fields=json.dumps(bookmark.source_fields)
         )
-        self.session.add(new_url_db)
+        self.session.add(new_bookmark_db)
         self.session.commit()
 
+        for url in bookmark.urls:
+            new_url = Url(url=url, bookmark_id=new_bookmark_db.id)
+            self.session.add(new_url)
+            self.session.commit()
+
     def list(self):
-        urls = self.session.query(Url).all()
-        return urls
+        bookmarks = self.session.query(Bookmark).all()
+        return bookmarks

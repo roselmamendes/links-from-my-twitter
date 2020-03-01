@@ -71,9 +71,9 @@ with_regular_bookmark_assert = [
 ]
 
 with_bookmark = Bookmark(
-    source_id='source-id',
-    source='some-source',
+    source_id='1235',
+    source='twitter',
     created_at='Wed Oct 10 20:19:24 +0000 2018',
     urls=['https://some-url'],
-    source_fields={'retweeted_status': ''}
+    source_fields={'retweeted_status': None}
 )

@@ -1,6 +1,6 @@
 import unittest
 import os
-from store.store import Store
+from app.store.store import Store
 from tests import json_for_tests
 from pathlib import Path
 
@@ -12,13 +12,15 @@ class TestStore(unittest.TestCase):
     def test_should_save_tweets_with_urls_in_a_file(self):
         store = Store('test_file')
 
-        store.save(json_for_tests.with_model_url)
+        store.save(json_for_tests.with_bookmark)
 
-        saved_tweet = store.list()[0]
+        saved_bookmark = store.list()[0]
 
-        self.assertEqual('1235', saved_tweet.tweet_id)
-        self.assertEqual('Wed Oct 10 20:19:24 +0000 2018', saved_tweet.created_at)
-        self.assertEqual('https://some-url', saved_tweet.url)
+        self.assertEqual('1235', saved_bookmark.source_id)
+        self.assertEqual('Wed Oct 10 20:19:24 +0000 2018', saved_bookmark.created_at)
+        self.assertEqual('https://some-url', saved_bookmark.urls[0].url)
+        self.assertEqual('twitter', saved_bookmark.source)
+        self.assertEqual('{"retweeted_status": null}', saved_bookmark.source_fields)
 
 
 def _remove_test_database():
